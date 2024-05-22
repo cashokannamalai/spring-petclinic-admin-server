@@ -23,7 +23,7 @@ jobs:
           mvn clean install 
 
   scan:
-    needs: ci-job
+    needs: Build
     steps:
       
 
