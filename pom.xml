@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -10,16 +9,11 @@
     <packaging>jar</packaging>
     <description>Spring Boot Admin server</description>
 
-    <!-- parent>
-        <groupId>org.springframework.samples</groupId>
-        <artifactId>spring-petclinic-microservices</artifactId>
-        <version>3.2.4</version>
-    </parent -->
-
     <properties>
         <spring-boot-admin.version>3.2.0</spring-boot-admin.version>
         <docker.image.exposed.port>9090</docker.image.exposed.port>
         <docker.image.dockerfile.dir>${basedir}/../docker</docker.image.dockerfile.dir>
+        <java.version>17</java.version>
     </properties>
 
     <dependencies>
@@ -52,29 +46,41 @@
             <version>${spring-boot-admin.version}</version>
         </dependency>
 
-        <!-- Third-party librairies -->
+        <!-- Third-party libraries -->
         <dependency>
             <groupId>org.jolokia</groupId>
             <artifactId>jolokia-core</artifactId>
             <version>1.7.2</version>
         </dependency>
-
     </dependencies>
-   <build>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.8.1</version> <!-- Use a compatible version -->
-            <configuration>
-                <source>17</source>
-                <target>17</target>
-            </configuration>
-        </plugin>
-    </plugins>
-</build>
 
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>org.springframework.samples.petclinic.admin.SpringBootAdminApplication</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <profiles>
         <profile>
@@ -89,5 +95,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>
