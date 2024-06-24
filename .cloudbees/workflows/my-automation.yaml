@@ -59,41 +59,35 @@ jobs:
           token: 20e414018be1508e8a472229e7ec07da1a13cfa1
 
 
-  
-
-  DeployEc2:
-    needs: SonarAnalysis
+  NexusPublish:
+    needs: [SonarAnalysis]
     steps:
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-          ls
+          echo "Listing directory contents before Build:"
+          ls -lR /cloudbees/workspace
+
       - name: checkout
         uses: cloudbees-io/checkout@v1
-      - name: Build
+
+      - name: Publish to Nexus
         uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn clean install -DskipTests=true  
-      - name: List built files
-        uses: docker://alpine:latest
-        run: |+
-          ls -l /cloudbees/workspace/target
-      
-      - name: Deploy to EC2
-        uses: docker://alpine:latest
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          SOURCE: "/cloudbees/workspace/target/spring-petclinic-admin-server-3.2.4.jar"
-          REMOTE_HOST: "44.204.64.78"
-          REMOTE_USER: "ubuntu"
-          TARGET: "/home/ubuntu/petclinic"
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+
         run: |
-          apk update
-          apk add openssh-client
-          echo "$SSH_PRIVATE_KEY" > /cloudbees/workspace/ssh-key.pem
-          chmod 600 /cloudbees/workspace/ssh-key.pem
-          scp -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
-          ssh -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem "$REMOTE_USER"@"$REMOTE_HOST" "nohup java -jar /home/ubuntu/petclinic/spring-petclinic-admin-server-3.2.4.jar > /home/ubuntu/petclinic/admin-server.log 2>&1 &"
-          ls -l /cloudbees/workspace/
-          rm -rf /cloudbees/workspace/ssh-key.pem
-          ls -l /cloudbees/workspace/
+          mvn deploy -DskipTests \
+            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
+
+      - name: List directory contents after Publish
+        uses: docker://alpine:latest
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -lR /cloudbees/workspace
+
+
+  
+
+  
