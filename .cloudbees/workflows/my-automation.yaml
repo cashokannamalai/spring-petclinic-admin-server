@@ -114,8 +114,7 @@ jobs:
          sleep 60
 
   
-      
-
+    
       - name: Transfer artifact to EC2 instance
         uses: docker://alpine:latest
         run: |
