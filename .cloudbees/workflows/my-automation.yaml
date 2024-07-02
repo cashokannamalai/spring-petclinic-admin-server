@@ -167,9 +167,4 @@ jobs:
           PUBLIC_DNS=$(cat public_dns.txt)
           echo "http://$PUBLIC_DNS"
 
-      - name: Output clickable URL
-        uses: actions/github-script@v3
-        with:
-          script: |
-            const publicDns = fs.readFileSync('public_dns.txt', 'utf8').trim();
-            console.log(`Visit your application at: http://${publicDns}`);
+      
