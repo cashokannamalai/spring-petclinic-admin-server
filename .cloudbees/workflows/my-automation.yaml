@@ -90,17 +90,6 @@ jobs:
   CreateEC2Instance:
     needs: [NexusPublish]
     steps:
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
-
-      - name: Build 
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn clean install 
       - name: Configure AWS credentials
         uses: cloudbees-io/configure-aws-credentials@v1
         with:
@@ -142,14 +131,21 @@ jobs:
          sleep 60
 
   
-    
+      - name: Download artifact from Nexus
+        uses: docker://alpine:latest
+        run: |
+         apk update
+         apk add curl
+         curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} -O https://nexus.preview.cb-demos.io/repository/Petclinic/org/springframework/samples/petclinic/admin/spring-petclinic-admin-server/3.2.4/spring-petclinic-admin-server-3.2.4.jar
+         ls
+
       - name: Transfer artifact to EC2 instance
         uses: docker://alpine:latest
         run: |
          apk update
          apk add openssh-client
          PUBLIC_DNS=$(cat public_dns.txt)
-         scp -o StrictHostKeyChecking=no -i ashokpetclinic.pem  target/spring-petclinic-admin-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
+         scp -o StrictHostKeyChecking=no -i ashokpetclinic.pem  spring-petclinic-admin-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
 
 
       - name: Install Java 17 on EC2 instance
