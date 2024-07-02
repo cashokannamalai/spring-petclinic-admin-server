@@ -159,21 +159,15 @@ jobs:
             nohup java -jar /home/ubuntu/spring-petclinic-admin-server-3.2.4.jar > /home/ubuntu/admin-server.log 2>&1 &
             disown
           EOF
-  ApplicationDetails:
-   needs: [DeployApplicationAWS]
-   steps:
-    - name: View public DNS with port 9090
-      uses: docker://alpine:latest
-      run: |
-        echo "Public DNS with port 9090:"
-        ls -l /cloudbees/workspace  # List the contents of the directory
-        cat /cloudbees/workspace/public_dns.txt
-        PUBLIC_DNS=$(cat /cloudbees/workspace/public_dns.txt)
-        echo "http://$PUBLIC_DNS:9090"
+      - name: View public DNS with port 9090
+        uses: docker://alpine:latest
+        run: |
+          echo "Public DNS with port 9090:"
+          PUBLIC_DNS=$(cat public_dns.txt)
+          echo "http://$PUBLIC_DNS"
 
-    - name: Output DNS URL
-      uses: docker://alpine:latest
-      run: |
-        ls -l /cloudbees/workspace  # List the contents of the directory
-        PUBLIC_DNS=$(cat /cloudbees/workspace/public_dns.txt | cut -d ':' -f 1)
-        echo "Application URL: http://$PUBLIC_DNS:9090"
+      - name: Output DNS URL
+        uses: docker://alpine:latest
+        run: |
+          PUBLIC_DNS=$(cat public_dns.txt | cut -d ':' -f 1)
+          echo "Application URL: http://$PUBLIC_DNS:9090"
