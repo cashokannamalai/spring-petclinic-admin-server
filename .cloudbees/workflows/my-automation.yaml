@@ -56,7 +56,7 @@ jobs:
         name: Scan GP
         with:
           project-key: admin-server
-          token: 20e414018be1508e8a472229e7ec07da1a13cfa1
+          token: ${{ secrets.token }}
 
   ArtifactPublish:
     needs: [StaticAnalysis]
@@ -159,7 +159,9 @@ jobs:
             nohup java -jar /home/ubuntu/spring-petclinic-admin-server-3.2.4.jar > /home/ubuntu/admin-server.log 2>&1 &
             disown
           EOF
-
+  ApplicationDetails:
+    needs: [DeployApplicationAWS]
+    steps:
       - name: View public DNS with port 9090
         uses: docker://alpine:latest
         run: |
