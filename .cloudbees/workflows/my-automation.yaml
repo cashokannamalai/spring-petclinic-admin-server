@@ -88,80 +88,88 @@ jobs:
 
 
   DeployApplicationAWS:
-   needs: [ArtifactPublish]
-   steps:
-    - name: Configure AWS credentials
-      uses: cloudbees-io/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: us-east-1
+    needs: [ArtifactPublish]
+    steps:
+      - name: Configure AWS credentials
+        uses: cloudbees-io/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
 
-    - name: Remove existing key pair if exists
-      uses: docker://amazon/aws-cli:latest
-      run: |
-        if aws ec2 describe-key-pairs --key-name "ashokpetclinic" --region us-east-1; then
-          aws ec2 delete-key-pair --key-name "ashokpetclinic" --region us-east-1
-        fi
+      - name: Remove existing key pair if exists
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          if aws ec2 describe-key-pairs --key-name "ashokpetclinic" --region us-east-1; then
+            aws ec2 delete-key-pair --key-name "ashokpetclinic" --region us-east-1
+          fi
 
-    - name: Create and use EC2 key pair
-      uses: docker://amazon/aws-cli:latest
-      run: |
-        aws ec2 create-key-pair --key-name ashokpetclinic --region us-east-1 --query 'KeyMaterial' --output text > ashokpetclinic.pem
-        chmod 400 ashokpetclinic.pem
-        INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "ashokpetclinic" --region us-east-1 --query 'Instances[0].InstanceId' --output text)
-        echo $INSTANCE_ID > instance_id.txt
-        ls
-        cat instance_id.txt
+      - name: Create and use EC2 key pair
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          aws ec2 create-key-pair --key-name ashokpetclinic --region us-east-1 --query 'KeyMaterial' --output text > ashokpetclinic.pem
+          chmod 400 ashokpetclinic.pem
+          INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "ashokpetclinic" --region us-east-1 --query 'Instances[0].InstanceId' --output text)
+          echo $INSTANCE_ID > instance_id.txt
+          ls
+          cat instance_id.txt
 
-    - name: Wait for EC2 instance to be running
-      uses: docker://amazon/aws-cli:latest
-      run: |
-        INSTANCE_ID=$(cat instance_id.txt)
-        aws ec2 wait instance-running --instance-ids $INSTANCE_ID
-        PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
-        echo $PUBLIC_DNS:9090 > public_dns.txt
-        cat public_dns.txt
+      - name: Wait for EC2 instance to be running
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          INSTANCE_ID=$(cat instance_id.txt)
+          aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+          PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
+          echo $PUBLIC_DNS:9090 > public_dns.txt
+          cat public_dns.txt
 
-    - name: Add delay to ensure instance is ready
-      uses: docker://alpine:latest
-      run: |
-       echo "Waiting for 60 seconds to ensure the instance is ready..."
-       sleep 60
+      - name: Add delay to ensure instance is ready
+        uses: docker://alpine:latest
+        run: |
+          echo "Waiting for 60 seconds to ensure the instance is ready..."
+          sleep 60
 
-    - name: Download artifact from Nexus
-      uses: docker://alpine:latest
-      run: |
-       apk update
-       apk add curl
-       curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} -O https://nexus.preview.cb-demos.io/repository/Petclinic/org/springframework/samples/petclinic/admin/spring-petclinic-admin-server/3.2.4/spring-petclinic-admin-server-3.2.4.jar
-       ls
+      - name: Download artifact from Nexus
+        uses: docker://alpine:latest
+        run: |
+          apk update
+          apk add curl
+          curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} -O https://nexus.preview.cb-demos.io/repository/Petclinic/org/springframework/samples/petclinic/admin/spring-petclinic-admin-server/3.2.4/spring-petclinic-admin-server-3.2.4.jar
+          ls
 
-    - name: Transfer artifact to EC2 instance
-      uses: docker://alpine:latest
-      run: |
-       apk update
-       apk add openssh-client
-       PUBLIC_DNS=$(cat public_dns.txt | cut -d ':' -f 1)
-       scp -o StrictHostKeyChecking=no -i ashokpetclinic.pem  spring-petclinic-admin-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
+      - name: Transfer artifact to EC2 instance
+        uses: docker://alpine:latest
+        run: |
+          apk update
+          apk add openssh-client
+          PUBLIC_DNS=$(cat public_dns.txt | cut -d ':' -f 1)
+          scp -o StrictHostKeyChecking=no -i ashokpetclinic.pem  spring-petclinic-admin-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
 
-    - name: Install Java 17 on EC2 instance
-      uses: docker://alpine:latest
-      run: |
-       apk update
-       apk add openssh-client
-       PUBLIC_DNS=$(cat public_dns.txt | cut -d ':' -f 1)
-       ssh -o StrictHostKeyChecking=no -i ashokpetclinic.pem ubuntu@$PUBLIC_DNS << 'EOF'
-        sudo apt update
-        sudo apt install -y openjdk-17-jdk
-        java -version
-        nohup java -jar /home/ubuntu/spring-petclinic-admin-server-3.2.4.jar > /home/ubuntu/admin-server.log 2>&1 &
-        disown
-       EOF
+      - name: Install Java 17 on EC2 instance
+        uses: docker://alpine:latest
+        run: |
+          apk update
+          apk add openssh-client
+          PUBLIC_DNS=$(cat public_dns.txt | cut -d ':' -f 1)
+          ssh -o StrictHostKeyChecking=no -i ashokpetclinic.pem ubuntu@$PUBLIC_DNS << 'EOF'
+            sudo apt update
+            sudo apt install -y openjdk-17-jdk
+            java -version
+            nohup java -jar /home/ubuntu/spring-petclinic-admin-server-3.2.4.jar > /home/ubuntu/admin-server.log 2>&1 &
+            disown
+          EOF
 
-    - name: View public DNS with port 9090
-      uses: docker://alpine:latest
-      run: |
-        echo "Public DNS with port 9090:"
-        cat public_dns.txt
+      - name: View public DNS with port 9090
+        uses: docker://alpine:latest
+        run: |
+          echo "Public DNS with port 9090:"
+          PUBLIC_DNS=$(cat public_dns.txt)
+          echo "http://$PUBLIC_DNS"
+
+      - name: Output clickable URL
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const publicDns = fs.readFileSync('public_dns.txt', 'utf8').trim();
+            console.log(`Visit your application at: http://${publicDns}`);
