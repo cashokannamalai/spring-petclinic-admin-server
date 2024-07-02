@@ -162,17 +162,27 @@ jobs:
           disown
          EOF
 
-      - name: Push instance_id.txt to repository
+      - name: Configure Git
         uses: docker://alpine:latest
         run: |
           apk update
           apk add git
-          git config --global user.email "c_aannamalai@cloudbees.com"
-          git config --global user.name "cashokannamalai"
-        
-          cd /cloudbees/workspace/spring-petclinic-admin-server  
-          git checkout -b ashok
+          git config --global user.name "Your Name"
+          git config --global user.email "your-email@example.com"
+
+      - name: Checkout ashok branch
+        uses: docker://alpine/git:latest
+        run: |
+          git clone https://github.com/cashokannamalai/spring-petclinic-admin-server.git
+          cd spring-petclinic-admin-server
+          git checkout ashok
+
+      - name: Commit and push instance_id.txt
+        uses: docker://alpine/git:latest
+        run: |
+          cd sampleclinic
+          cp /cloudbees/workspace/instance_id.txt .
           git add instance_id.txt
-          git commit -m "Update instance_id.txt with new EC2 instance ID"
-          git push -f origin ashok
+          git commit -m "Add instance_id.txt"
+          git push origin ashok
          
