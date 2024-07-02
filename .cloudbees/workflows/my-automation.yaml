@@ -36,12 +36,12 @@ jobs:
         kind: scan
         with:
           server-url: https://sonarqube.cb-demos.io
-          username: admin
-          password: admin123
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
           language: Java
 
       - uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
-        name: Scan 2
+        name: Scan with Java
         kind: scan
         with:
           language: JAVA
