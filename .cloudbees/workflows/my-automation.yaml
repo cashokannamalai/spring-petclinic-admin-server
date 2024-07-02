@@ -121,7 +121,7 @@ jobs:
         INSTANCE_ID=$(cat instance_id.txt)
         aws ec2 wait instance-running --instance-ids $INSTANCE_ID
         PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
-        echo $PUBLIC_DNS:8888 > public_dns.txt
+        echo $PUBLIC_DNS:9090 > public_dns.txt
         cat public_dns.txt
 
     - name: Add delay to ensure instance is ready
@@ -160,8 +160,8 @@ jobs:
         disown
        EOF
 
-    - name: View public DNS with port 8888
+    - name: View public DNS with port 9090
       uses: docker://alpine:latest
       run: |
-        echo "Public DNS with port 8888:"
+        echo "Public DNS with port 9090:"
         cat public_dns.txt
