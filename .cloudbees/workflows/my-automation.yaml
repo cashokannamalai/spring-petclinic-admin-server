@@ -167,4 +167,8 @@ jobs:
           PUBLIC_DNS=$(cat public_dns.txt)
           echo "http://$PUBLIC_DNS"
 
-      
+      - name: Output DNS URL
+        uses: docker://alpine:latest
+        run: |
+          PUBLIC_DNS=$(cat public_dns.txt | cut -d ':' -f 1)
+          echo "Application URL: http://$PUBLIC_DNS:9090"
