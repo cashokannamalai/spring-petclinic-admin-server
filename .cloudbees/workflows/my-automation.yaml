@@ -28,7 +28,7 @@ jobs:
         run: |
           mvn clean install 
 
-  SonarAnalysis:
+  StaticAnalysis:
     needs: Build
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
@@ -58,8 +58,8 @@ jobs:
           project-key: admin-server
           token: 20e414018be1508e8a472229e7ec07da1a13cfa1
 
-  NexusPublish:
-    needs: [SonarAnalysis]
+  ArtifactPublish:
+    needs: [StaticAnalysis]
     steps:
       - uses: docker://alpine/git:latest
         run: |
@@ -87,8 +87,8 @@ jobs:
           ls -lR /cloudbees/workspace
 
 
-  CreateEC2Instance:
-    needs: [NexusPublish]
+  DeployApplicationAWS:
+    needs: [ArtifactPublish]
     steps:
       - name: Configure AWS credentials
         uses: cloudbees-io/configure-aws-credentials@v1
@@ -169,6 +169,8 @@ jobs:
           apk add git
           git config --global user.email "c_aannamalai@cloudbees.com"
           git config --global user.name "cashokannamalai"
+        
+          cd /cloudbees/workspace/spring-petclinic-admin-server  
           git checkout -b ashok
           git add instance_id.txt
           git commit -m "Update instance_id.txt with new EC2 instance ID"
