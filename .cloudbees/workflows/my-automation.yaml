@@ -95,7 +95,8 @@ jobs:
         uses: docker://google/cloud-sdk:latest
         run: |
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
+          kubectl config view
           kubectl cluster-info
-
-
+          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+          kubectl get pods -n ashok
  
