@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminserver-deployment
+  namespace: ashok
+  labels:
+    app: adminserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminserver
+  template:
+    metadata:
+      labels:
+        app: adminserver
+    spec:
+      containers:
+        - name: adminserver
+          image: caannamalai/adminserver:3.2.4
+          ports:
+            - containerPort: 9090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminserver-service
+  namespace: ashok
+  labels:
+    app: adminserver
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 9090
+      targetPort: 9090
+  selector:
+    app: adminserver
