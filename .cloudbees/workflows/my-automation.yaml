@@ -30,7 +30,7 @@ jobs:
 
   
   DockerImageBuildAndPush:
-    needs: StaticAnalysis
+    needs: Build
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
