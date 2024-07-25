@@ -99,5 +99,4 @@ jobs:
           kubectl cluster-info
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
           kubectl get pods -n ashok
-          
- 
+        
