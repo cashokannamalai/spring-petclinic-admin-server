@@ -94,8 +94,8 @@ jobs:
         with:
           secname: ${{ secrets.gapi_preprod_kubeconfig }}
 
-      - uses: docker://bitnami/kubectl:latest
-        name: test config
-        shell: sh
-        run: |
-          kubectl get pods -n ashok
+      - name: Check kubectl cluster info
+        uses: cashokannamalai/kubeconfig@v1
+        run: kubectl cluster-info
+        env:
+          KUBECONFIG: ${{ secrets.gapi_preprod_kubeconfig }}
