@@ -93,6 +93,11 @@ jobs:
         name: Set kubeconfig
         with:
           secname: ${{ secrets.gapi_preprod_kubeconfig }}
+
+      - name: Verify Kubernetes Config
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          kubectl config view
      
 
       
