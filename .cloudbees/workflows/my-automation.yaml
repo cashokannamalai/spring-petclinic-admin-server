@@ -90,6 +90,9 @@ jobs:
   DeployInGKE:
     needs: DockerImageBuildAndPush
     steps:
+      - name: checkout
+        uses: cloudbees-io/checkout@v1
+        
       - uses: cashokannamalai/kubeconfig@v1
         name: Set kubeconfig
         with:
@@ -99,6 +102,7 @@ jobs:
         name: test config
         shell: sh
         run: |
+          kubectl apply -f /cloudbees/workspace/ingress.yaml
           kubectl get pods -n ashok
           kubectl get svc -n ashok
           
