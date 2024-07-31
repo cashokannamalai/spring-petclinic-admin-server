@@ -85,30 +85,11 @@ jobs:
           build-args: docker images
 
 
-  DeployInGKE:
+  deploy-pre-prod:
     needs: DockerImageBuildAndPush
-    steps: 
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-         
-      - name: Install kubectl
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          export KUBECONFIG=${{ secrets.KUBECONFIG }}
-          kubectl config view
-          kubectl cluster-info
-          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
-          kubectl get pods -n ashok
-          kubectl get svc -n ashok
-
-
-      - name: Get External IP and Port
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          EXTERNAL_IP=$(kubectl get svc adminserver-service   -n ashok -o=jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          PORT=$(kubectl get svc adminserver-service -n ashok -o=jsonpath='{.spec.ports[0].port}')
-          echo "External IP: $EXTERNAL_IP"
-          echo "Port: $PORT"
-          echo "$EXTERNAL_IP:$PORT"
-        
+    environment: gapi-preprod
+    steps:
+      - uses: cashokannamalai/kubeconfig@v1
+        name: Set kubeconfig
+        with:
+          secname: ${{ secrets.gapi_preprod_kubeconfig }}
