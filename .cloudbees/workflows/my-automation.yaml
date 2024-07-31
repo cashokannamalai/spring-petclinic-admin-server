@@ -70,7 +70,7 @@ jobs:
         name: test config
         shell: sh
         run: |
-          kubectl get nodes
+          kubectl get pods -n ashok
           
 
      
