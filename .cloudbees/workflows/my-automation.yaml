@@ -66,11 +66,4 @@ jobs:
         with:
           secname: ${{ secrets.gapi_preprod_kubeconfig }}
 
-      - name: Print Kubeconfig
-        uses: docker://bitnami/kubectl:latest
-        run: |
-         cat /cloudbees/home/.kube/config
-        
      
-
-      
