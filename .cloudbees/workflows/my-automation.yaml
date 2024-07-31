@@ -66,4 +66,10 @@ jobs:
         with:
           secname: ${{ secrets.gapi_preprod_kubeconfig }}
 
+      - uses: docker://bitnami/kubectl:latest
+        name: test config
+        shell: sh
+        run: |
+          kubectl get nodes
+
      
