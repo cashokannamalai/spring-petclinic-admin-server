@@ -71,5 +71,6 @@ jobs:
         shell: sh
         run: |
           kubectl get nodes
+          
 
      
