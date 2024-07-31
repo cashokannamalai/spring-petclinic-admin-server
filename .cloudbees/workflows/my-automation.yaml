@@ -87,7 +87,7 @@ jobs:
 
   deploy-pre-prod:
     needs: DockerImageBuildAndPush
-    environment: gapi-preprod
+    
     steps:
       - uses: cashokannamalai/kubeconfig@v1
         name: Set kubeconfig
