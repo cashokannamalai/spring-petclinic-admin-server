@@ -102,6 +102,6 @@ jobs:
         name: Deploy image
         shell: sh
         run: |
-          kubectl apply -f /cloudbees/workspace/ingress.yaml
+          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
           kubectl get pods -n ashok
           kubectl get svc -n ashok
