@@ -49,10 +49,10 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host:  adminservergcp.com
+    - host:  ""
       http:
         paths:
-          - path: /applications
+          - path: /
             pathType: Prefix
             backend:
               service:
