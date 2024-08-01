@@ -96,15 +96,12 @@ jobs:
       - uses: cashokannamalai/kubeconfig@v1
         name: Set kubeconfig
         with:
-          secname: ${{ secrets.gapi_preprod_kubeconfig }}
+          secname: ${{ secrets.kubeconfig }}
 
       - uses: docker://bitnami/kubectl:latest
-        name: test config
+        name: Deploy image
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/ingress.yaml
           kubectl get pods -n ashok
           kubectl get svc -n ashok
-          
-
-     
