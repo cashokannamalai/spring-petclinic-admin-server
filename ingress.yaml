@@ -35,7 +35,7 @@ spec:
     app: adminserver
   ports:
     - protocol: TCP
-      port: 9090
+      port: 80
       targetPort: 9090
 
 ---
@@ -58,4 +58,4 @@ spec:
               service:
                 name: adminserver-service
                 port:
-                  number: 9090
+                  number: 80
