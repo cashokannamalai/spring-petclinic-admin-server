@@ -58,4 +58,4 @@ spec:
               service:
                 name: adminserver-service
                 port:
-                  number: 80
+                  number: 9090
