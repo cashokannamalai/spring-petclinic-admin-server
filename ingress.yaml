@@ -22,20 +22,24 @@ spec:
             - containerPort: 9090
 
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
   name: adminserver-service
   namespace: ashok
+  labels:
+    app: adminserver
 spec:
   selector:
     app: adminserver
   ports:
     - protocol: TCP
-      port: 9090
+      port: 80
       targetPort: 9090
 
 ---
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -45,7 +49,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: adminserver.example.com  
+    - host: adminserver.example.com
       http:
         paths:
           - path: /
@@ -54,4 +58,4 @@ spec:
               service:
                 name: adminserver-service
                 port:
-                  number: 9090
+                  number: 80
