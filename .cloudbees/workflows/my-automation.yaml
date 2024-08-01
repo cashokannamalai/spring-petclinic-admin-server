@@ -103,5 +103,4 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
-          kubectl get pods -n ashok
-          kubectl get svc -n ashok
+          kubectl get ingress -n ashok
