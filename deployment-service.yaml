@@ -52,7 +52,7 @@ spec:
     - host:  ""
       http:
         paths:
-          - path: /application
+          - path: /
             pathType: Prefix
             backend:
               service:
