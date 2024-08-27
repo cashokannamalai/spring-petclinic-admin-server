@@ -25,3 +25,13 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install 
+  Evidence:
+    needs: CommitInfoStage
+    steps:
+      - id: testAction
+        name: Test publish-evidence-item action
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+         content: |
+           - Run ID: ${{ cloudbees.run_id }}
+           - JOB.ID : ${{ job.id  }}
