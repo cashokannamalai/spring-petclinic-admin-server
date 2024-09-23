@@ -21,8 +21,8 @@ jobs:
         uses: docker://alpine/git:latest
         run: |
           commit_message=$(git log -1 --pretty=%B)
-          if ! [[ $commit_message =~ CBDEMO-[0-9]+ ]]; then
-            echo "Error: Commit message must contain the Jira issue key (e.g., CBDEMO-152)"
+          if ! [[ $commit_message =~ [A-Z]+-[0-9]+ ]]; then
+            echo "Error: Commit message must contain a Jira issue key (e.g., CBDEMO-152)."
             exit 1
           fi
 
@@ -43,4 +43,3 @@ jobs:
           sonar-exclusion: src/main/java
           cover-file-name: ./pom.xml
           language: "LANGUAGE_JAVA"
-
