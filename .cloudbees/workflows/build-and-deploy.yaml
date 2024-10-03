@@ -45,8 +45,14 @@ jobs:
             - **Commit ID:** "${{ steps.commitinfo.outputs.commit_id }}"
             - **Commit Message:** "${{ steps.commitinfo.outputs.commit_msg }}"
 
-      - uses: docker://maven:3-eclipse-temurin-17
-        name: Build
-        kind: build
-        run: mvn clean package
-            
+  StaticAnalysis:
+   
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+        
+      - name: Scan with GitHub Advanced Security
+        uses: cloudbees-io/github-security-sast-scan-code@v1
+        with:
+          token: ${{ secrets.GITHUB_SECRET }}
+          language: LANGUAGE_JAVA
