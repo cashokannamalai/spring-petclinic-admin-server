@@ -1,33 +1,25 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: My automation
-
 on:
-  push:
-    branches:
-      - main
-
+  workflow_dispatch:
 jobs:
   Checkout:
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1
-
   Build:
     needs: Checkout
     steps:
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-
       - name: checkout
         uses: cloudbees-io/checkout@v1
-
-      - name: Build 
+      - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install 
-
   StaticAnalysis:
     needs: Build
     steps:
@@ -39,28 +31,21 @@ jobs:
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
           language: Java
-
       - uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
         name: Scan with Java
         kind: scan
         with:
           language: JAVA
-
       - uses: cloudbees-io/findsecbugs-sast-scan-code@v1
         name: Scan with Find Security Bugs
         kind: scan
         with:
           language: LANGUAGE_JAVA
-
       - uses: sbatchelder-cba/sonarqube-cba@v0.0.3
         name: Scan GP
         with:
           project-key: admin-server
           token: ${{ secrets.token }}
-
- 
-
-  
   DockerImageBuildAndPush:
     needs: StaticAnalysis
     steps:
@@ -77,7 +62,6 @@ jobs:
           registry: ${{ secrets.STAGING_DOCKER_REGISTRY }}
           username: ${{ secrets.STAGING_DOCKER_USERNAME }}
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
-
       - name: Push image to OCI registry
         uses: cloudbees-io/kaniko@v1
         with:
@@ -85,19 +69,15 @@ jobs:
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/adminserver:3.2.4
           build-args: docker images
-
-
   DeployInGKE:
     needs: DockerImageBuildAndPush
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1
-        
       - uses: cashokannamalai/kubeconfig@v1
         name: Set kubeconfig
         with:
           secname: ${{ secrets.kubeconfig }}
-
       - uses: docker://bitnami/kubectl:latest
         name: Deploy image
         shell: sh
