@@ -2,10 +2,7 @@ spring:
   application:
     name: admin-server
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-
-server:
-  port: 9090
+    import: optional:configserver:${CONFIG_SERVER_URL:http://34.118.226.218:8888}
 
 ---
 spring:
@@ -17,4 +14,4 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://discovery-server:8761/eureka/
+      defaultZone: http://34.135.127.54:8761/
