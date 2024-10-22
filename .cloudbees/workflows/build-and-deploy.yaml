@@ -59,3 +59,4 @@ jobs:
           dockerfile: Dockerfile
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/adminserver:3.2.4
+          
